@@ -7,8 +7,11 @@ from flask_jwt_extended import jwt_required
 from Model import FileModel, DatasourceModel
 
 
+# Classe responsável por fornecer uma lista de indicadores com base no contexto (LMS ou CSV)
 class Indicator(Resource):
 
+# obtém indicadores específicos de um LMS. Ele recebe o ID do LMS da solicitação JSON,
+# cria uma consulta SQL para selecionar indicadores de um banco de dados com base no ID do LMS e retorna os resultados.
     def get_indicators_by_lms(self):
         lms_id = request.get_json()['id']
 
@@ -26,7 +29,10 @@ class Indicator(Resource):
                     """
         
         return utils.execute_query(query)
-    
+
+# obtém indicadores de um arquivo CSV. Ele obtém o ID da fonte de dados da solicitação JSON, consulta o banco de dados
+# para obter detalhes sobre o arquivo correspondente, lê o arquivo CSV usando pandas e cria uma lista de indicadores(?)
+# a partir das colunas do DataFrame.   
     def get_indicators_by_csv(self):
         indicators = []
         id = request.get_json()['id']
@@ -46,7 +52,9 @@ class Indicator(Resource):
 
         return indicators
 
-
+#  lida com solicitações POST para a rota associada ao recurso Indicator.
+#  Ele verifica o contexto da solicitação JSON (LMS ou CSV) e chama o método correspondente para obter a lista de indicadores.
+#  Retorna a lista de indicadores obtida ou uma lista vazia em caso de erro.
     @jwt_required
     def post(self):
         try:
@@ -62,3 +70,8 @@ class Indicator(Resource):
         except:
             traceback.print_exc()
             return {"msg": "Error on GET Indicator"}, 500
+        
+# usada para fornecer uma lista de indicadores com base no contexto (LMS ou CSV) por meio de uma API REST, onde as operações são protegidas por autenticação JWT.
+
+#req(CONTEXT e ID) 
+#res(colunas da tabela INDICADORES) -> return POST

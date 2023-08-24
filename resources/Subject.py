@@ -4,8 +4,15 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 
+
+# usada para obter informações sobre DISCIPLINAS com base em filtros de CURSOS
 class Subject(Resource):
 
+
+# Ele obtém os dados da solicitação usando request.get_json()
+# Gera uma cláusula SQL WHERE com base no filtro de CURSOS fornecido.
+# Monta uma consulta SQL para recuperar os nomes das disciplinas que pertencem aos CURSOS especificados.
+# Utiliza a função utils.execute_query para executar a consulta e retornar os resultados.
     @jwt_required
     def post(self):
         try:
@@ -29,3 +36,7 @@ class Subject(Resource):
         except:
             traceback.print_exc()
             return {"msg": "Error on get Subject"}, 500
+        
+
+#req(COURSE)
+#res(DISCIPLINAS)

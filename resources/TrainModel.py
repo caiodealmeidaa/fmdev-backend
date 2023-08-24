@@ -8,15 +8,21 @@ from flask import request, current_app
 from flask_jwt_extended import jwt_required
 from Model import TrainModel, TrainModelSchema
 
+
+
+# usado para lidar com operações relacionadas a modelos de treinamento.
 class TrainModelResource(Resource):
 
+# Obtém um objeto TrainModel pelo ID.
     def get_by_id(key):
         try:
             return TrainModel.query.filter_by(model_id=key).first()
         except:
             traceback.print_exc()
             return {}
-    
+
+# Atualiza as informações do modelo após uma previsão ser feita, como a última vez 
+# que a previsão foi feita e a quantidade total de previsões feitas.
     def update_predict(key):
         try:
             model = TrainModel.query.filter_by(model_id=key).first()
@@ -36,6 +42,8 @@ class TrainModelResource(Resource):
             traceback.print_exc()
             return False
 
+# método que lida com solicitações GET para a rota associada ao recurso TrainModelResource.
+# Retorna uma lista de modelos de treinamento associados ao usuário autenticado.
     @jwt_required
     def get(self):
         try:
@@ -51,6 +59,8 @@ class TrainModelResource(Resource):
             traceback.print_exc()
             return None, 500
 
+# método que lida com solicitações POST para a rota associada ao recurso TrainModelResource.
+# Cria um novo modelo de treinamento associado ao usuário autenticado.
     @jwt_required
     def post(self):
         try:
@@ -77,6 +87,8 @@ class TrainModelResource(Resource):
             traceback.print_exc()
             return [], 500
     
+# Um método que lida com solicitações PUT para a rota associada ao recurso TrainModelResource.
+# Atualiza informações sobre um modelo de treinamento específico.
     @jwt_required
     def put(self, key):
         try:
@@ -96,6 +108,8 @@ class TrainModelResource(Resource):
             traceback.print_exc()
             return [], 500
 
+# lida com solicitações DELETE para a rota associada ao recurso TrainModelResource.
+# Deleta um modelo de treinamento específico e seus arquivos associados.
     @jwt_required
     def delete(self, key):
         try:
@@ -111,3 +125,6 @@ class TrainModelResource(Resource):
         except:
             traceback.print_exc()
             return {'msg': f"Error to delete train model"}, 500
+
+# req(description, name, path, score)
+# res(updated_at, user_id, name, created_at, qtd_predict, description, last_predict_at, model_id, id, score)

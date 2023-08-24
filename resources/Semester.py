@@ -4,8 +4,16 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 
+
+# Usada para obter informações sobre os semestres de cursos ou disciplinas em um sistema
 class Semester(Resource):
 
+
+# Ele obtém os dados da solicitação POST usando request.get_json().
+# Gera uma cláusula SQL WHERE com base nos filtros de cursos e disciplinas fornecidos.
+# Monta uma consulta SQL para recuperar os semestres relacionados aos cursos e disciplinas filtrados.
+# Usa a função utils.execute_query(query) para executar a consulta no banco de dados.
+# Retorna os resultados da consulta, que são os semestres encontrados.
     @jwt_required
     def post(self):
         try:
@@ -37,3 +45,10 @@ class Semester(Resource):
         except:
             traceback.print_exc()
             return {"msg": "Error on GET Semester"}, 500
+        
+
+# Se houver algum erro durante o processo, o bloco except capturará a exceção, imprimirá o rastreamento de pilha
+# e retornará uma mensagem de erro junto com um código de status HTTP 500 (Internal Server Error).
+
+# req(DISCIPLINAS)
+# res(SEMESTER)

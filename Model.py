@@ -5,14 +5,21 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 
 
+#  O codigo a seguir descreve a estrutura das classes de modelo da sua aplicação. Essas classes são definidas usando o SQLAlchemy, que é uma biblioteca ORM (Object-Relational Mapping) para Python, e o Marshmallow, que é uma biblioteca para serialização/desserialização de objetos Python para JSON.
+
+# Cria uma instância do Marshmallow para serialização/desserialização de objetos.
 ma = Marshmallow()
+# Cria uma instância do SQLAlchemy para gerenciar a interação com o banco de dados.
 db = SQLAlchemy()
 
+
+# Uma classe mixin que define os campos created_at e updated_at para adicionar automaticamente a data e hora de criação e atualização aos registros do banco de dados.
 class TimestampMixin(object):
     created_at = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+# Classe de modelo que representa a tabela de usuários no banco de dados. Possui campos como id, username, email, password, created_at e updated_at.
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -29,7 +36,7 @@ class User(db.Model):
         self.created_at = created_at
         self.updated_at = updated_at
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo User.
 class UserSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     username = fields.String(required=True)
@@ -38,7 +45,7 @@ class UserSchema(ma.Schema):
     created_at = fields.DateTime(required=True)
     updated_at = fields.DateTime(required=True)
 
-
+# Classe de modelo que representa a tabela LMS (Learning Management System) no banco de dados. Ela possui campos como id, name, description, url, token, version, created_at e updated_at.
 class Lms(db.Model, TimestampMixin):
     __tablename__ = 'lms'
     id = db.Column(db.Integer, primary_key=True)
@@ -54,7 +61,7 @@ class Lms(db.Model, TimestampMixin):
         self.version = version
         self.token = token
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo Lms.
 class LmsSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
@@ -65,7 +72,7 @@ class LmsSchema(ma.Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
-
+#  Classe de modelo que representa a tabela de indicadores no banco de dados. Possui campos como id, name, description, lms, created_at e updated_at.
 class Indicator(db.Model):
     __tablename__ = 'indicators'
     id = db.Column(db.Integer, primary_key=True)
@@ -82,7 +89,7 @@ class Indicator(db.Model):
         self.created_at = created_at
         self.updated_at = updated_at
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo Indicator.
 class IndicatorSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
@@ -91,6 +98,7 @@ class IndicatorSchema(ma.Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
+# Classe de modelo que representa a tabela de modelos de treinamento no banco de dados. Possui campos como id, name, description, model_id, score, api_key, qtd_predict, last_predict_at e user_id.
 class TrainModel(db.Model, TimestampMixin):
     __tablename__ = 'train_models'
     id = db.Column(db.Integer, primary_key=True)
@@ -111,7 +119,7 @@ class TrainModel(db.Model, TimestampMixin):
         self.api_key = api_key
         self.user_id = user_id
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo TrainModel.
 class TrainModelSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
@@ -125,7 +133,7 @@ class TrainModelSchema(ma.Schema):
     qtd_predict = fields.Integer()
     last_predict_at = fields.DateTime()
 
-
+# Classe de modelo que representa a tabela de fontes de dados no banco de dados. Possui campos como id, name, file_id, created_at e updated_at.
 class DatasourceModel(db.Model, TimestampMixin):
     __tablename__ = 'datasources'
     id = db.Column(db.Integer, primary_key=True)
@@ -136,7 +144,7 @@ class DatasourceModel(db.Model, TimestampMixin):
         self.name = name
         self.file_id = file_id
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo DatasourceModel.
 class DatasourceModelSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String()
@@ -145,7 +153,7 @@ class DatasourceModelSchema(ma.Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
-
+# Classe de modelo que representa a tabela de arquivos no banco de dados. Possui campos como id, file_id, filename, extension, size, created_at e updated_at.
 class FileModel(db.Model, TimestampMixin):
     __tablename__ = 'files'
     id = db.Column(db.Integer, primary_key=True)
@@ -160,7 +168,7 @@ class FileModel(db.Model, TimestampMixin):
         self.extension = extension
         self.size = size
 
-
+# Classe de esquema para a serialização/desserialização de objetos do tipo FileModel.
 class FileModelSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
     file_id = fields.String()
@@ -169,3 +177,6 @@ class FileModelSchema(ma.Schema):
     size = fields.Float()
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
+
+
+# Essas classes de modelo são a base para a definição das tabelas do banco de dados e sua interação com a aplicação. O Marshmallow é usado para definir como esses objetos devem ser serializados (convertidos em JSON) e desserializados (convertidos de JSON para objetos). Isso é útil para a comunicação com APIs, manipulação de dados e validação de entrada/saída.

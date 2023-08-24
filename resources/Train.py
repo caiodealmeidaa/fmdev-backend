@@ -1,3 +1,4 @@
+
 import os
 import joblib
 import traceback
@@ -12,8 +13,12 @@ from flask_jwt_extended import jwt_required
 from sklearn.metrics import make_scorer, SCORERS
 from sklearn.model_selection import train_test_split
 
+
+# destinado a treinar modelos de aprendizado de máquina usando o algoritmo TPOT.
 class Train(Resource):
 
+
+# Retorna a lista de pipelines usados a partir do resultado da execução do TPOT.
     def get_used_pipeline(self, tpot):
         pipelines = []
 
@@ -29,6 +34,7 @@ class Train(Resource):
 
         return pipelines
 
+# Realiza o treinamento do modelo TPOT com os dados de treinamento fornecidos.
     def train(self, x_train, y_train, generations, kfold):
         client = Client(processes=False)
         output_folder = f"{current_app.config.get('TRAIN_TPOT_OUTPUT')}/{self.get_filename_from_path('')}"
@@ -44,6 +50,7 @@ class Train(Resource):
 
         return tpot
 
+# Obtém um DataFrame a partir dos dados CSV fornecidos na solicitação.
     def get_dataframe_from_csv(self):
         payload = request.get_json()
 
@@ -52,6 +59,7 @@ class Train(Resource):
 
         return df
 
+#  Obtém um DataFrame sem codificação one-hot para as colunas categóricas.
     def get_df_without_one_hot_encoding(self, target):
         df = self.get_dataframe_from_csv()
         df_categoric = df.copy()
@@ -63,6 +71,7 @@ class Train(Resource):
 
         return df, df_x
 
+#  Obtém um DataFrame sem codificação one-hot para as colunas categóricas.
     def get_filename_from_path(self, extension):
         payload = request.get_json()
         path = payload['path']
@@ -70,22 +79,28 @@ class Train(Resource):
 
         return filename
 
+
+# Salva o modelo treinado em um arquivo com extensão .sav.
     def save(self, tpot):
         filename = self.get_filename_from_path('.sav')
         filename = f"{current_app.config.get('TRAIN_MODELS')}/{filename}"
         joblib.dump(tpot.fitted_pipeline_, open(filename, 'wb'))
 
+ # Exporta o melhor pipeline treinado para um arquivo com extensão .py.
     def export(self, tpot):
         filename = self.get_filename_from_path('.py')
         filename = f"{current_app.config.get('TRAIN_PIPELINES')}/{filename}"
         tpot.export(filename)
 
+# Salva conjuntos de dados (treinamento/teste) em arquivos CSV.
     def save_split(self, df, split_type):
         filename = self.get_filename_from_path('.csv')
         filename = f"{current_app.config.get(split_type)}/{filename}"
 
         df.to_csv(filename, index=False)
 
+# Um método que lida com solicitações POST para a rota associada ao recurso Train. 
+# Realiza o treinamento do modelo TPOT com base nos dados fornecidos e retorna informações sobre o treinamento.
     @jwt_required
     def post(self):
         try:
@@ -126,6 +141,8 @@ class Train(Resource):
             traceback.print_exc()
             return {"msg": "Error on POST Train"}, 500
 
+# método que lida com solicitações DELETE para a rota associada ao recurso Train. 
+# Exclui os arquivos relacionados ao modelo treinado.
     @jwt_required
     def delete(self):
         try:
@@ -137,3 +154,7 @@ class Train(Resource):
         except:
             traceback.print_exc()
             return {"msg": "Error on DELETE Train"}, 500
+
+
+# req(generations, kfold, path, target, test, train)
+# res(score, qtd_evaluated_pipelines, fitted_pipelines)

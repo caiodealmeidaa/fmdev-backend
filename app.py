@@ -22,11 +22,19 @@ from resources.Phenomenon import Phenomenon
 from resources.ModelVariables import ModelVariables
 from resources.Student import Student
 from resources.Period import Period
+#from resources.Cluster import Cluster
 
+
+# Criadas as rotas da API Flask
+# Cada recurso da API (como login, registro, treinamento de modelo, etc.) é associado a uma rota específica.
+# Isso facilita a organização e a manutenção do código, permitindo que cada recurso seja definido em seu próprio arquivo e,
+# em seguida, importado aqui para construir as rotas.
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
 # Routes
+# As linhas subsequentes adicionam cada recurso à API usando o método add_resource. 
+# Cada recurso é mapeado para uma rota específica
 api.add_resource(Login, '/auth/login')
 api.add_resource(File, '/file', '/file/<string:key>')
 api.add_resource(Register, '/auth/register')
@@ -49,3 +57,7 @@ api.add_resource(Phenomenon, '/phenomenon')
 api.add_resource(ModelVariables, '/model-variables/<string:key>')
 api.add_resource(Period, '/period')
 api.add_resource(Student, '/student')
+#api.add_resource(Cluster, '/cluster')
+
+# Esse padrão de organização de código é muito útil para projetos maiores, pois ajuda a manter a estrutura limpa e escalável, facilitando a adição de novos recursos e a manutenção dos existentes. 
+# Cada recurso é definido em seu próprio arquivo e pode ser gerenciado independentemente.

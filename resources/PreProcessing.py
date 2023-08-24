@@ -11,9 +11,13 @@ from sklearn.impute import SimpleImputer
 from flask_jwt_extended import jwt_required
 from Model import FileModel, DatasourceModel
 
-
+# representa um recurso (endpoint) de uma API Flask responsável por pré-processar os dados antes de usá-los para treinamento ou previsões
+# possui várias funções que realizam diferentes tarefas relacionadas ao pré-processamento dos dados.
 class PreProcessing(Resource):
 
+
+# Calcula a correlação de Spearman entre as colunas do DataFrame df e a coluna-alvo especificada no payload da solicitação.
+# Essas informações de correlação são retornadas em um dicionário.
     def get_corr(self, df):
         correlation_items = {}
         payload = request.get_json()
@@ -30,6 +34,10 @@ class PreProcessing(Resource):
 
         return correlation_items
 
+
+# Obtém as descrições das colunas (indicadores) do DataFrame. Dependendo do contexto (LMS ou CSV),
+# chama uma das duas funções: get_indicators_description_from_lms ou get_indicators_description_from_csv.
+# As descrições são retornadas em um dicionário, onde as chaves são os nomes das colunas e os valores são as descrições.
     def get_indicators_description(self):
         payload = request.get_json()
 
@@ -41,7 +49,7 @@ class PreProcessing(Resource):
         
         return {}
 
-    
+# Obtém as descrições das colunas do DataFrame carregado de um arquivo CSV associado à fonte de dados identificada pelo payload da solicitação.
     def get_indicators_description_from_csv(self):
         descriptions = {}
         payload = request.get_json()
@@ -58,7 +66,7 @@ class PreProcessing(Resource):
         
         return descriptions
 
-
+# Obtém as descrições das colunas do DataFrame carregado de uma fonte de dados do LMS identificada pelo payload da solicitação.
     def get_indicators_description_from_lms(self):
         descriptions = {}
         payload = request.get_json()
@@ -83,7 +91,9 @@ class PreProcessing(Resource):
             descriptions[item['name']] = item['description']
 
         return descriptions
-
+    
+# Obtém o DataFrame inicial a ser pré-processado, dependendo do contexto (LMS ou CSV).
+# Novamente, chama uma das duas funções: get_initial_dataframe_from_lms ou get_initial_dataframe_from_csv.
     def get_initial_dataframe(self):
         payload = request.get_json()
 
@@ -95,7 +105,7 @@ class PreProcessing(Resource):
 
         return None
     
-
+# Carrega o DataFrame inicial de um arquivo CSV associado à fonte de dados identificada pelo payload da solicitação.
     def get_initial_dataframe_from_csv(self):
         indicators = []
         payload = request.get_json()
@@ -109,7 +119,8 @@ class PreProcessing(Resource):
 
         return df
 
-    
+# Obtém o DataFrame inicial a ser pré-processado, dependendo do contexto (LMS ou CSV).
+# Novamente, chama uma das duas funções: get_initial_dataframe_from_lms ou get_initial_dataframe_from_csv.
     def get_initial_dataframe_from_lms(self):
         query_where = ''
         where = 'WHERE'
@@ -147,6 +158,8 @@ class PreProcessing(Resource):
 
         return df
 
+# Salva o DataFrame pré-processado em um arquivo CSV. Se já houver um caminho especificado no payload da solicitação, o arquivo é salvo nesse caminho. 
+# Caso contrário, um novo arquivo é criado com um ID único e o DataFrame é salvo nesse novo arquivo.
     def save_file(self, df):
         payload = request.get_json()
 
@@ -160,6 +173,7 @@ class PreProcessing(Resource):
 
         return path
 
+# Obtém o DataFrame pré-processado a partir do arquivo CSV armazenado em cache, identificado pelo caminho especificado no payload da solicitação.
     def get_dataframe_from_cache(self):
         payload = request.get_json()
 
@@ -168,6 +182,9 @@ class PreProcessing(Resource):
 
         return df
 
+
+# Obtém o DataFrame a ser pré-processado. Se já houver um caminho especificado no payload, chama a função get_dataframe_from_cache.
+# Caso contrário, chama a função get_initial_dataframe.
     def get_dataframe(self):
         payload = request.get_json()
 
@@ -176,6 +193,9 @@ class PreProcessing(Resource):
         else:
             return self.get_initial_dataframe()
 
+
+# Realiza o pré-processamento real do DataFrame. Ele pode preencher valores ausentes usando a estratégia especificada
+# no payload (como a média ou uma constante), conforme especificado no indicador de pré-processamento no payload.
     def get_df_pre_processed(self, df):
         payload = request.get_json()
         fill_value = None
@@ -191,6 +211,11 @@ class PreProcessing(Resource):
 
         return df
 
+
+# o DataFrame é pré-processado usando a função get_df_pre_processed(). 
+# Em seguida, são coletadas informações estatísticas (correlação, estatísticas descritivas, contagem de valores nulos)
+# e informações sobre as colunas (indicações do LMS ou do CSV). O DataFrame pré-processado é salvo em um arquivo CSV e
+# seu caminho é retornado junto com todas as informações coletadas.
     @jwt_required
     def post(self):
         try:
@@ -266,6 +291,9 @@ class PreProcessing(Resource):
             traceback.print_exc()
             return {"msg": "Error on POST PreProcessing"}, 500
 
+
+# o arquivo CSV criado pelo pré-processamento é excluído. 
+# Esse método requer que o caminho do arquivo seja especificado no payload da solicitação.
     @jwt_required
     def delete(self):
         try:
@@ -282,3 +310,27 @@ class PreProcessing(Resource):
         except:
             traceback.print_exc()
             return {"msg": "Error on DELETE Train"}, 500
+
+
+# O objetivo dessa classe é oferecer uma API que permita pré-processar os dados fornecidos pelo usuário antes de usá-los em outras etapas,
+# como treinamento de modelos ou geração de previsões. O pré-processamento inclui a manipulação de valores ausentes,
+# o cálculo de estatísticas descritivas e a determinação das correlações entre as colunas do DataFrame.
+# Tudo isso é realizado para auxiliar na análise e preparação dos dados para as tarefas subsequentes.
+
+# req(CONTEXT, COURSES, ID, INDICATORS, SEMESTERS, SUBJECTS, TARGET)
+# # res(      "name"
+#             "description"
+#             "type"
+#             "missing"
+#             "unique"
+#             "count"
+#             "mean"
+#             "std" 
+#             "min"
+#             "25%"
+#             "50%"
+#             "75%"
+#             "max"
+#             "corr",
+#             "path",
+#             "is_processed")
